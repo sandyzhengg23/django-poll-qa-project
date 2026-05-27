@@ -1,0 +1,76 @@
+name: QA Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install ruff pytest pytest-django pytest-cov pytest-playwright
+
+      - name: Install Playwright browser
+        run: |
+          python -m playwright install --with-deps chromium
+
+      - name: Set up database
+        run: |
+          python manage.py migrate
+
+      - name: Run linter
+        run: |
+          ruff check .
+
+      - name: Run unit tests with coverage
+        run: |
+          mkdir -p reports/coverage
+          python -m pytest tests/unit \
+            --cov=accounts \
+            --cov=polls \
+            --cov-report=term-missing \
+            --cov-report=html:reports/coverage/htmlcov
+
+      - name: Run integration tests
+        run: |
+          python -m pytest tests/integration
+
+      - name: Start Django server
+        run: |
+          python manage.py runserver 0.0.0.0:8000 &
+          echo $! > django.pid
+          sleep 5
+          curl --fail http://127.0.0.1:8000/
+
+      - name: Run performance load test
+        run: |
+          docker run --rm --network host -v "${{ github.workspace }}:/scripts" grafana/k6 run /scripts/performance/load_test.js
+
+      - name: Run performance spike test
+        run: |
+          docker run --rm --network host -v "${{ github.workspace }}:/scripts" grafana/k6 run /scripts/performance/spike_test.js
+
+      - name: Run UI automation tests
+        run: |
+          python -m pytest tests/ui
+
+      - name: Stop Django server
+        if: always()
+        run: |
+          if [ -f django.pid ]; then kill $(cat django.pid) || true; fi
