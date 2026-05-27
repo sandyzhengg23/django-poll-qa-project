@@ -80,7 +80,10 @@ def test_login_with_invalid_credentials_shows_error(page):
 
 
 def test_unauthorized_user_cannot_open_add_poll_page(page):
-    """Verify that a logged-in user without poll creation permission sees a permission error."""
+    """
+    Verify that a logged-in user without poll creation permission
+    sees a permission error.
+    """
     user = unique_user()
 
     register_user(page, user)

@@ -72,9 +72,11 @@ def test_poll_vote_redirects_when_user_already_voted_using_stub_and_mock():
 
     stub_poll = StubPoll(can_vote=False)
 
-    with patch("polls.views.get_object_or_404", return_value=stub_poll), patch(
-        "polls.views.messages.error"
-    ) as mock_error, patch("polls.views.redirect", return_value="redirected") as mock_redirect:
+    with (
+        patch("polls.views.get_object_or_404", return_value=stub_poll),
+        patch("polls.views.messages.error") as mock_error,
+        patch("polls.views.redirect", return_value="redirected") as mock_redirect,
+    ):
         response = poll_vote(request, poll_id=1)
 
     assert response == "redirected"
@@ -88,9 +90,11 @@ def test_poll_vote_rejects_missing_choice_using_stub_and_mock():
 
     stub_poll = StubPoll(can_vote=True)
 
-    with patch("polls.views.get_object_or_404", return_value=stub_poll), patch(
-        "polls.views.messages.error"
-    ) as mock_error, patch("polls.views.redirect", return_value="redirected") as mock_redirect:
+    with (
+        patch("polls.views.get_object_or_404", return_value=stub_poll),
+        patch("polls.views.messages.error") as mock_error,
+        patch("polls.views.redirect", return_value="redirected") as mock_redirect,
+    ):
         response = poll_vote(request, poll_id=1)
 
     assert response == "redirected"
@@ -106,11 +110,12 @@ def test_poll_vote_saves_vote_using_spy_vote_and_mocked_choice():
     fake_choice = Mock(id=5)
     SpyVote.instances.clear()
 
-    with patch("polls.views.get_object_or_404", return_value=stub_poll), patch(
-        "polls.views.Choice.objects.get", return_value=fake_choice
-    ), patch("polls.views.Vote", SpyVote), patch(
-        "polls.views.render", return_value="rendered"
-    ) as mock_render:
+    with (
+        patch("polls.views.get_object_or_404", return_value=stub_poll),
+        patch("polls.views.Choice.objects.get", return_value=fake_choice),
+        patch("polls.views.Vote", SpyVote),
+        patch("polls.views.render", return_value="rendered") as mock_render,
+    ):
         response = poll_vote(request, poll_id=1)
 
     assert response == "rendered"
