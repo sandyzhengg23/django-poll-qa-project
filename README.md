@@ -1,6 +1,6 @@
 # Django Poll App QA Project
 
-This repository contains my Software Quality Assurance final project for MPCS 56540. The project is based on the open-source Django Poll App and includes QA artifacts such as linting, user acceptance testing, unit tests, coverage reports, performance testing, UI automation, integration tests, code smell review, and CI/CD configuration.
+This repository contains my Software Quality Assurance final project for MPCS 56540. The project is based on an open-source Django Poll App and extends it with QA artifacts, including linting, user acceptance testing, unit tests, coverage reports, performance testing, UI automation, integration tests, code smell review, and CI/CD configuration.
 
 ## Reference Codebase
 
@@ -15,8 +15,8 @@ This repository contains my modified version of the app with added tests, report
 Clone the repository:
 
 ```bash
-git clone https://github.com/sandyzhengg23/Django-Poll-App.git
-cd Django-Poll-App
+git clone https://github.com/sandyzhengg23/django-poll-qa-project.git
+cd django-poll-qa-project
 ```
 
 Create and activate a virtual environment:
@@ -35,13 +35,20 @@ python -m pip install -r requirements.txt
 Install QA/testing dependencies:
 
 ```bash
-python -m pip install ruff pytest pytest-django pytest-cov
+python -m pip install ruff pytest pytest-django pytest-cov pytest-playwright
+python -m playwright install
 ```
 
 Run database migrations:
 
 ```bash
 python manage.py migrate
+```
+
+Optional: seed the database with sample data:
+
+```bash
+python seeder.py
 ```
 
 Start the Django development server:
@@ -68,7 +75,7 @@ Run the linter:
 ruff check .
 ```
 
-Optional: save linter output to a report file:
+Optional: save the linter output to a report file:
 
 ```bash
 mkdir -p reports/linter
@@ -109,14 +116,7 @@ The unit tests are located in:
 tests/unit/
 ```
 
-Unit test files:
-
-```text
-tests/unit/test_forms_unit.py
-tests/unit/test_views_unit.py
-```
-
-The suite contains 8 unit tests total. Four tests cover form validation, and four tests use test doubles to isolate view behavior from shared dependencies such as the database, authenticated user objects, Django messages, redirects, and vote persistence.
+The unit test suite includes tests for form validation and view behavior. The tests use test doubles to isolate behavior from shared dependencies such as the database, authenticated user objects, Django messages, redirects, and vote persistence.
 
 The test double types used include:
 
@@ -127,15 +127,11 @@ The test double types used include:
 
 ### Run Unit Tests
 
-A grader can run the full unit test suite with:
-
 ```bash
 python -m pytest tests/unit
 ```
 
 ### Run Unit Tests with Coverage
-
-A grader can run the unit tests with coverage using:
 
 ```bash
 mkdir -p reports/coverage
@@ -172,6 +168,8 @@ The coverage report is stored in:
 reports/coverage/
 ```
 
+---
+
 ## Q4: Performance Testing
 
 This project uses **k6** for performance testing. The performance tests are located in:
@@ -179,14 +177,14 @@ This project uses **k6** for performance testing. The performance tests are loca
 ```text
 performance/load_test.js
 performance/spike_test.js
-
+```
 
 The two performance test types are:
 
 * Load test: tests the app under normal expected traffic
 * Spike test: tests the app under a sudden traffic increase
 
-The tested endpoints are:
+The tested endpoints include:
 
 ```text
 /
@@ -268,20 +266,13 @@ This project uses **Playwright with pytest** for automated end-to-end UI testing
 tests/ui/test_ui_flows.py
 ```
 
-The suite includes five browser-based tests:
+The suite includes browser-based tests for major user flows, such as:
 
-* Get Started button navigates from the home page to the login page
-* New user registration with valid information
-* Valid login and navigation to the polls list
-* Invalid login displays an error message
-* Unauthorized user is blocked from the Add Poll page
-
-### Install Playwright Dependencies
-
-```bash
-python -m pip install pytest-playwright
-python -m playwright install
-```
+* Navigating from the home page
+* Registering a new user
+* Logging in with valid credentials
+* Displaying an error for invalid login
+* Blocking unauthorized users from protected pages
 
 ### Run the Django Server
 
@@ -311,17 +302,37 @@ python -m pytest tests/ui
 python -m pytest tests/ui --headed
 ```
 
-A successful run should show all five UI tests passing, with 5/5 greens.
+---
 
+## Q6: Code Smell Review
+
+This project includes code quality review through Ruff linting and manual code smell review. Ruff is configured in:
+
+```text
+pyproject.toml
 ```
+
+Run the code smell/static analysis check with:
+
+```bash
+ruff check .
 ```
+
+Any related linter reports are stored in:
+
+```text
+reports/linter/
+```
+
+---
 
 ## Q7: Integration Tests
 
 The integration tests are located in:
 
-tests/integration/test_poll_integration.py
-
+```text
+tests/integration/
+```
 
 Run the integration tests with:
 
@@ -331,37 +342,66 @@ python -m pytest tests/integration
 
 ---
 
+## Run All Automated Tests
+
+To run unit, UI, and integration tests together:
+
+```bash
+python -m pytest tests
+```
+
+To run all tests with coverage for the Django app code:
+
+```bash
+python -m pytest tests \
+  --cov=accounts \
+  --cov=polls \
+  --cov-report=term-missing
+```
+
+---
+
+## CI/CD
+
+This repository includes GitHub Actions workflow configuration in:
+
+```text
+.github/workflows/
+```
+
+The CI/CD setup is used to automate quality checks such as linting and test execution.
+
+---
+
 ## Current Project Structure
 
 ```text
 .
+├── .github/
 ├── accounts/
 ├── performance/
 ├── pollme/
 ├── polls/
 ├── reports/
-│   ├── coverage/
-│   ├── linter/
-│   ├── performance/
-│   ├── screenshots/
-│   └── uat/
-│       └── UAT_Test_suite.xlsx
+├── static/
+├── templates/
 ├── tests/
-│   └── unit/
-│       ├── test_forms_unit.py
-│       └── test_views_unit.py
+├── .gitignore
+├── LICENSE
 ├── manage.py
-├── pytest.ini
 ├── pyproject.toml
+├── pytest.ini
+├── README.md
 ├── requirements.txt
-└── README.md
+├── requirements.txt.save
+└── seeder.py
 ```
 
 ---
 
 ## AI Use Disclosure
 
-I used ChatGPT as a learning, planning, and debugging assistant for this project. Specifically, I used it to help interpret assignment requirements, organize the project structure, troubleshoot setup issues, understand how to configure Ruff and pytest, debug environment problems with pytest, and format parts of the README and write-up. I also used ChatGPT to help brainstorm how to describe test doubles such as dummy, stub, mock, and spy objects in the write-up.
+I used ChatGPT as a learning, planning, and debugging tool while working on this project. Specifically, I used it to help interpret assignment requirements, organize the project structure, troubleshoot setup issues, understand how to configure Ruff and pytest, debug environment problems with pytest as well as errors that occurred in the coding process, and format parts of the README and write-up. The CI/CD piepline syntax also was heavy lifted by ChatGPT.
 
 The test execution, manual UAT results, screenshots, and final project decisions were reviewed and completed by me.
 
@@ -369,10 +409,12 @@ The test execution, manual UAT results, screenshots, and final project decisions
 
 ## References
 
-* Django documentation: [https://docs.djangoproject.com/](https://docs.djangoproject.com/)
-* Pytest documentation: [https://docs.pytest.org/](https://docs.pytest.org/)
-* pytest-django documentation: [https://pytest-django.readthedocs.io/](https://pytest-django.readthedocs.io/)
-* pytest-cov documentation: [https://pytest-cov.readthedocs.io/](https://pytest-cov.readthedocs.io/)
-* Ruff documentation: [https://docs.astral.sh/ruff/](https://docs.astral.sh/ruff/)
-* Original Django Poll App repository: [https://github.com/devmahmud/Django-Poll-App](https://github.com/devmahmud/Django-Poll-App)
+* Django documentation: https://docs.djangoproject.com/
+* Pytest documentation: https://docs.pytest.org/
+* pytest-django documentation: https://pytest-django.readthedocs.io/
+* pytest-cov documentation: https://pytest-cov.readthedocs.io/
+* Ruff documentation: https://docs.astral.sh/ruff/
+* k6 documentation: https://grafana.com/docs/k6/latest/
+* Playwright Python documentation: https://playwright.dev/python/
+* Original Django Poll App repository: https://github.com/devmahmud/Django-Poll-App
 * ChatGPT, used for assignment planning, debugging help, README formatting, and explanation of testing concepts
