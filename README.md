@@ -1,12 +1,12 @@
 # Django Poll App QA Project
 
-This repository contains my Software Quality Assurance final project for MPCS 56540. The project is based on an open-source Django Poll App and extends it with QA artifacts, including linting, user acceptance testing, unit tests, coverage reports, performance testing, UI automation, integration tests, code smell review, and CI/CD configuration.
+This repository contains my Software Quality Assurance final project for MPCS 56540. The project is based on an open-source Django Poll App and extends it with QA artifacts, including linting, user acceptance testing, unit tests, coverage reports, performance testing, UI automation, a smoke test plan, integration tests, code smell review, and CI/CD configuration.
 
 ## Reference Codebase
 
 Original repository: https://github.com/devmahmud/Django-Poll-App
 
-This repository contains my modified version of the app with added tests, reports, configurations, and project documentation.
+This repository contains my modified version of the app with added tests, reports, configurations, automation scripts, and project documentation.
 
 ---
 
@@ -65,9 +65,13 @@ http://127.0.0.1:8000/
 
 ---
 
-## Running the Linter
+## Q1: Linter / Static Review
 
-This project uses Ruff for static analysis. Ruff is configured in `pyproject.toml`.
+This project uses **Ruff** for static analysis. Ruff is configured in:
+
+```text
+pyproject.toml
+```
 
 Run the linter:
 
@@ -81,6 +85,8 @@ Optional: save the linter output to a report file:
 mkdir -p reports/linter
 ruff check . > reports/linter/ruff_initial.txt || true
 ```
+
+The linter/static review section in the final write-up includes five distinct examples of Ruff catching useful issues, including unused imports, long lines, unsorted imports, missing newline at end of file, and unused local variables.
 
 ---
 
@@ -103,6 +109,25 @@ The UAT suite includes manual test cases with:
 * Actual Result
 * Pass/Fail
 * Black-box Technique Used
+
+The UAT suite covers major user-facing features of the Django Poll App, including:
+
+* Viewing the public home page
+* Navigating from Get Started to the login page
+* Registering a new account
+* Logging in with existing credentials
+* Viewing the polls list
+* Sorting polls by name, date, and vote count
+* Searching polls
+* Checking Add Poll permission behavior
+
+The black-box testing techniques used include:
+
+* Equivalence Partitioning
+* Boundary Value Analysis
+* State Transition Testing
+* Decision Table Testing
+* Pairwise Testing
 
 Screenshots of the authored and executed UAT suite are included in the project write-up.
 
@@ -172,7 +197,7 @@ reports/coverage/
 
 ## Q4: Performance Testing
 
-This project uses **k6** for performance testing. The performance tests are located in:
+This project uses **k6** for performance testing. The performance test scripts are located in:
 
 ```text
 performance/load_test.js
@@ -304,25 +329,31 @@ python -m pytest tests/ui --headed
 
 ---
 
-## Q6: Code Smell Review
+## Q6: Smoke Test Plan
 
-This project includes code quality review through Ruff linting and manual code smell review. Ruff is configured in:
+The smoke test plan is included in the final project write-up.
 
-```text
-pyproject.toml
-```
+The smoke test plan defines what it means for a new build of the Django Poll App to be healthy enough for deeper testing. It covers the most critical user paths, including:
 
-Run the code smell/static analysis check with:
+* Home page loading
+* Get Started navigation
+* User registration
+* User login
+* Invalid login rejection
+* Polls list access
 
-```bash
-ruff check .
-```
+The smoke test plan includes:
 
-Any related linter reports are stored in:
+* Objective
+* Scope and coverage
+* Approach
+* Smoke test cases
+* Test deliverables
+* Environment and resources
+* Schedule and entry/exit criteria
+* Risks and contingency plans
 
-```text
-reports/linter/
-```
+This plan is a design deliverable and does not need to be executed as part of the automated test suite.
 
 ---
 
@@ -334,11 +365,62 @@ The integration tests are located in:
 tests/integration/
 ```
 
+The integration tests exercise real boundaries between components, such as:
+
+* Polls list view, database, and rendered template response
+* Vote view, Poll model, Choice model, Vote model, and database
+
 Run the integration tests with:
 
 ```bash
 python -m pytest tests/integration
 ```
+
+---
+
+## Q8: Code Smells
+
+The code smell review is included in the final project write-up.
+
+The review identifies three different code smell types in the application source code:
+
+* Duplicate Code
+* Long Method
+* Comments
+
+For each code smell, the write-up includes:
+
+* Code smell type
+* File and line location
+* Why it is a smell
+* Proposed improvement
+* Code excerpt showing the issue
+
+This section is a review exercise, so the identified code smells were documented and analyzed rather than fully refactored.
+
+---
+
+## Q9: CI/CD Pipeline
+
+This repository includes GitHub Actions workflow configuration in:
+
+```text
+.github/workflows/
+```
+
+The CI/CD pipeline is configured to automate quality checks such as:
+
+* Setting up the application
+* Running the linter
+* Running unit tests
+* Running integration tests
+* Running performance tests
+* Running UI automation tests
+
+The final write-up includes screenshots of both:
+
+* A successful pipeline run
+* A failing pipeline run that demonstrates the lint or test gate working
 
 ---
 
@@ -358,18 +440,6 @@ python -m pytest tests \
   --cov=polls \
   --cov-report=term-missing
 ```
-
----
-
-## CI/CD
-
-This repository includes GitHub Actions workflow configuration in:
-
-```text
-.github/workflows/
-```
-
-The CI/CD setup is used to automate quality checks such as linting and test execution.
 
 ---
 
@@ -401,9 +471,9 @@ The CI/CD setup is used to automate quality checks such as linting and test exec
 
 ## AI Use Disclosure
 
-I used ChatGPT as a learning, planning, and debugging tool while working on this project. Specifically, I used it to help interpret assignment requirements, organize the project structure, troubleshoot setup issues, understand how to configure Ruff and pytest, debug environment problems with pytest as well as errors that occurred in the coding process, and format parts of the README and write-up. The CI/CD piepline syntax also was heavy lifted by ChatGPT.
+I used ChatGPT as a learning, planning, and debugging tool while working on this project. Specifically, I used it to help interpret assignment requirements, organize the project structure, troubleshoot setup issues, understand how to configure Ruff and pytest, debug environment problems with pytest, debug errors that occurred during the coding process, and format parts of the README and write-up.
 
-The test execution, manual UAT results, screenshots, and final project decisions were reviewed and completed by me.
+I also used ChatGPT to help understand CI/CD workflow syntax and to help format the GitHub Actions pipeline configuration. The test execution, manual UAT results, screenshots, and final project decisions were reviewed and completed by me.
 
 ---
 
@@ -416,5 +486,6 @@ The test execution, manual UAT results, screenshots, and final project decisions
 * Ruff documentation: https://docs.astral.sh/ruff/
 * k6 documentation: https://grafana.com/docs/k6/latest/
 * Playwright Python documentation: https://playwright.dev/python/
+* GitHub Actions documentation: https://docs.github.com/en/actions
 * Original Django Poll App repository: https://github.com/devmahmud/Django-Poll-App
-* ChatGPT, used for assignment planning, debugging help, README formatting, and explanation of testing concepts
+* ChatGPT, used for assignment planning, debugging help, README formatting, CI/CD syntax help, and explanation of testing concepts
